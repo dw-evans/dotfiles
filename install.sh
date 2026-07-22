@@ -14,6 +14,13 @@ echo -e "${BLUE}=== Dotfiles Installation ===${NC}"
 echo "Repository directory: ${DOTFILES_DIR}"
 echo ""
 
+# Ensure git submodules are initialized and updated
+if [ -d "$DOTFILES_DIR/.git" ] || [ -f "$DOTFILES_DIR/.git" ]; then
+    echo -e "${BLUE}Initializing and updating submodules...${NC}"
+    git -C "$DOTFILES_DIR" submodule update --init --recursive
+    echo ""
+fi
+
 # Helper function to create symlinks safely
 link_file() {
     local src="$1"
@@ -58,7 +65,7 @@ link_file "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
 link_file "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
 
 # WezTerm
-# link_file "$DOTFILES_DIR/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
+link_file "$DOTFILES_DIR/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
 
 echo ""
 echo -e "${GREEN}=== Setup complete! ===${NC}"

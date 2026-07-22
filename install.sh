@@ -29,22 +29,21 @@ if [[ "$DOTFILES_DIR" == /mnt/c/* ]]; then
     exit 1
 fi
 
-# Auto-install system packages at the top of the script
-REQUIRED_PACKAGES=(unzip tmux ripgrep fd-find build-essential)
-MISSING_PACKAGES=()
+# Auto-install system packages if CLI binaries are missing
+REQUIRED_PACKAGES=()
 
-for pkg in "${REQUIRED_PACKAGES[@]}"; do
-    if ! dpkg -l "$pkg" >/dev/null 2>&1 && ! command -v "$pkg" >/dev/null 2>&1 && ! command -v "${pkg/-find/}" >/dev/null 2>&1; then
-        MISSING_PACKAGES+=("$pkg")
-    fi
-done
+command -v tmux >/dev/null 2>&1 || REQUIRED_PACKAGES+=(tmux)
+command -v unzip >/dev/null 2>&1 || REQUIRED_PACKAGES+=(unzip)
+command -v rg >/dev/null 2>&1 || REQUIRED_PACKAGES+=(ripgrep)
+command -v fdfind >/dev/null 2>&1 || command -v fd >/dev/null 2>&1 || REQUIRED_PACKAGES+=(fd-find)
+command -v gcc >/dev/null 2>&1 || command -v make >/dev/null 2>&1 || REQUIRED_PACKAGES+=(build-essential)
 
-if [ ${#MISSING_PACKAGES[@]} -ne 0 ]; then
-    echo -e "${BLUE}Installing required tools (${MISSING_PACKAGES[*]})...${NC}"
+if [ ${#REQUIRED_PACKAGES[@]} -ne 0 ]; then
+    echo -e "${BLUE}Installing missing packages (${REQUIRED_PACKAGES[*]})...${NC}"
     if command -v apt-get >/dev/null 2>&1; then
-        sudo apt-get update && sudo apt-get install -y "${MISSING_PACKAGES[@]}"
+        sudo apt-get update && sudo apt-get install -y "${REQUIRED_PACKAGES[@]}"
     else
-        echo -e "${RED}[ERROR] Could not auto-install ${MISSING_PACKAGES[*]}. Please install them manually.${NC}"
+        echo -e "${RED}[ERROR] Could not auto-install ${REQUIRED_PACKAGES[*]}. Please install them manually.${NC}"
         exit 1
     fi
     echo ""

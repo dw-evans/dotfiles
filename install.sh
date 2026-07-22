@@ -54,6 +54,19 @@ if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
     exit 1
 fi
 
+# Add Bob and Neovim to PATH for current session and shell config files
+PATH_EXPORT='export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"'
+export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"
+
+for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    if [ -f "$rc" ]; then
+        if ! grep -qs 'bob/nvim-bin' "$rc"; then
+            echo -e "\n# Added by dotfiles install.sh\n$PATH_EXPORT" >> "$rc"
+            echo -e "${GREEN}Added Bob & Neovim to PATH in $rc${NC}"
+        fi
+    fi
+done
+
 # Ensure git submodules are initialized and updated
 if [ -d "$DOTFILES_DIR/.git" ] || [ -f "$DOTFILES_DIR/.git" ]; then
     echo -e "${BLUE}Initializing and updating submodules...${NC}"
@@ -62,8 +75,6 @@ if [ -d "$DOTFILES_DIR/.git" ] || [ -f "$DOTFILES_DIR/.git" ]; then
 fi
 
 # Ensure bob & Neovim 0.11.7 are installed
-export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"
-
 echo -e "${BLUE}Checking Neovim installation via bob...${NC}"
 if ! check_tool bob; then
     echo -e "${YELLOW}Installing bob (Neovim version manager)...${NC}"

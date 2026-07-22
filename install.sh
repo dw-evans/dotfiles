@@ -93,16 +93,6 @@ echo -e "${GREEN}Current Neovim version:${NC}"
 nvim --version | head -n 3
 echo ""
 
-# Ensure Tmux Plugin Manager (TPM) is installed
-if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
-    echo -e "${BLUE}Installing Tmux Plugin Manager (TPM)...${NC}"
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    if [ -f "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
-        echo -e "${BLUE}Installing Tmux plugins (Catppuccin, etc.)...${NC}"
-        "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
-    fi
-fi
-
 # Helper function to create symlinks safely
 link_file() {
     local src="$1"
@@ -163,6 +153,20 @@ if [ -d "/mnt/c/Users" ]; then
                 ;;
         esac
     done
+fi
+
+# Ensure Tmux Plugin Manager (TPM) and plugins (Catppuccin, etc.) are installed headlessly
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+    echo -e "${BLUE}Installing Tmux Plugin Manager (TPM)...${NC}"
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+fi
+
+if command -v tmux >/dev/null 2>&1 && [ -f "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
+    echo -e "${BLUE}Installing Tmux plugins headlessly...${NC}"
+    tmux start-server
+    tmux new-session -d -s tpm_install 2>/dev/null || true
+    "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
+    tmux kill-session -t tpm_install 2>/dev/null || true
 fi
 
 echo ""

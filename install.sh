@@ -29,6 +29,27 @@ if [[ "$DOTFILES_DIR" == /mnt/c/* ]]; then
     exit 1
 fi
 
+# Auto-install system packages at the top of the script
+REQUIRED_PACKAGES=(unzip tmux ripgrep fd-find build-essential)
+MISSING_PACKAGES=()
+
+for pkg in "${REQUIRED_PACKAGES[@]}"; do
+    if ! dpkg -l "$pkg" >/dev/null 2>&1 && ! command -v "$pkg" >/dev/null 2>&1 && ! command -v "${pkg/-find/}" >/dev/null 2>&1; then
+        MISSING_PACKAGES+=("$pkg")
+    fi
+done
+
+if [ ${#MISSING_PACKAGES[@]} -ne 0 ]; then
+    echo -e "${BLUE}Installing required tools (${MISSING_PACKAGES[*]})...${NC}"
+    if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update && sudo apt-get install -y "${MISSING_PACKAGES[@]}"
+    else
+        echo -e "${RED}[ERROR] Could not auto-install ${MISSING_PACKAGES[*]}. Please install them manually.${NC}"
+        exit 1
+    fi
+    echo ""
+fi
+
 # Helper to check required tools
 check_tool() {
     local tool="$1"
@@ -37,22 +58,6 @@ check_tool() {
     fi
     return 0
 }
-
-# Check basic system dependencies
-MISSING_TOOLS=()
-for tool in curl unzip git; do
-    if ! check_tool "$tool"; then
-        MISSING_TOOLS+=("$tool")
-    fi
-done
-
-if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
-    echo -e "${RED}[ERROR] Missing required CLI tool(s): ${MISSING_TOOLS[*]}${NC}"
-    echo -e "${YELLOW}Please install them first by running:${NC}"
-    echo -e "  sudo apt update && sudo apt install -y ${MISSING_TOOLS[*]} build-essential"
-    echo ""
-    exit 1
-fi
 
 # Export PATH for current script execution
 export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"

@@ -54,15 +54,16 @@ if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
     exit 1
 fi
 
-# Add Bob and Neovim to PATH for current session and shell config files
-PATH_EXPORT='export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"'
+# Export PATH for current script execution
 export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"
 
+# Ensure PATH exports are added to shell config files (~/.bashrc and ~/.zshrc)
 for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-    if [ -f "$rc" ]; then
+    if [ -f "$rc" ] || [ "$rc" = "$HOME/.bashrc" ]; then
+        touch "$rc"
         if ! grep -qs 'bob/nvim-bin' "$rc"; then
-            echo -e "\n# Added by dotfiles install.sh\n$PATH_EXPORT" >> "$rc"
-            echo -e "${GREEN}Added Bob & Neovim to PATH in $rc${NC}"
+            echo -e '\n# Bob & Neovim PATH\nexport PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"' >> "$rc"
+            echo -e "${GREEN}Added Bob & Neovim PATH to $rc${NC}"
         fi
     fi
 done

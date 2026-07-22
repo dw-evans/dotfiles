@@ -89,6 +89,16 @@ echo -e "${GREEN}Current Neovim version:${NC}"
 nvim --version | head -n 3
 echo ""
 
+# Ensure Tmux Plugin Manager (TPM) is installed
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+    echo -e "${BLUE}Installing Tmux Plugin Manager (TPM)...${NC}"
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    if [ -f "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
+        echo -e "${BLUE}Installing Tmux plugins (Catppuccin, etc.)...${NC}"
+        "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
+    fi
+fi
+
 # Helper function to create symlinks safely
 link_file() {
     local src="$1"

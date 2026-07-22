@@ -1,5 +1,6 @@
-*
-!.gitignore
-!.tmux.conf
-!.wezterm.lua
-!sync.sh
+# Ignore backup and temp files
+*.bak
+*.bak.*
+*.swp
+*.tmp
+.DS_Store

@@ -1,0 +1,10 @@
+[user]
+	name = Daniel Evans
+  email = 106231868+dw-evans@users.noreply.github.com
+
+[core]
+	editor = nvim
+	autocrlf = input
+
+[init]
+	defaultBranch = main

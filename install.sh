@@ -21,6 +21,22 @@ if [ -d "$DOTFILES_DIR/.git" ] || [ -f "$DOTFILES_DIR/.git" ]; then
     echo ""
 fi
 
+# Ensure bob & Neovim 0.11.7 are installed
+export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"
+
+echo -e "${BLUE}Checking Neovim installation via bob...${NC}"
+if ! command -v bob >/dev/null 2>&1; then
+    echo -e "${YELLOW}Installing bob (Neovim version manager)...${NC}"
+    curl -fsSL https://raw.githubusercontent.com/MordechaiHadad/bob/master/scripts/install.sh | bash
+fi
+
+echo -e "${BLUE}Setting Neovim version to 0.11.7...${NC}"
+"$HOME/.local/bin/bob" use 0.11.7
+
+echo -e "${GREEN}Current Neovim version:${NC}"
+nvim --version | head -n 3
+echo ""
+
 # Helper function to create symlinks safely
 link_file() {
     local src="$1"

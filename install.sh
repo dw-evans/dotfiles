@@ -5,6 +5,7 @@ set -e
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Colors for terminal output
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
@@ -13,6 +14,45 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}=== Dotfiles Installation ===${NC}"
 echo "Repository directory: ${DOTFILES_DIR}"
 echo ""
+
+# Prevent running from Windows /mnt/c/ filesystem under WSL
+if [[ "$DOTFILES_DIR" == /mnt/c/* ]]; then
+    echo -e "${RED}[ERROR] You are running install.sh from /mnt/c/... (Windows filesystem)!${NC}"
+    echo -e "${YELLOW}Symlinks and file permissions do not work properly on Windows mounts.${NC}"
+    echo -e "${YELLOW}Please clone into your Linux home directory (~) and run setup from there:${NC}"
+    echo ""
+    echo "  cd ~"
+    echo "  git clone --recurse-submodules https://github.com/dw-evans/dotfiles.git ~/dotfiles"
+    echo "  cd ~/dotfiles"
+    echo "  ./install.sh"
+    echo ""
+    exit 1
+fi
+
+# Helper to check required tools
+check_tool() {
+    local tool="$1"
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        return 1
+    fi
+    return 0
+}
+
+# Check basic system dependencies
+MISSING_TOOLS=()
+for tool in curl unzip git; do
+    if ! check_tool "$tool"; then
+        MISSING_TOOLS+=("$tool")
+    fi
+done
+
+if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
+    echo -e "${RED}[ERROR] Missing required CLI tool(s): ${MISSING_TOOLS[*]}${NC}"
+    echo -e "${YELLOW}Please install them first by running:${NC}"
+    echo -e "  sudo apt update && sudo apt install -y ${MISSING_TOOLS[*]} build-essential"
+    echo ""
+    exit 1
+fi
 
 # Ensure git submodules are initialized and updated
 if [ -d "$DOTFILES_DIR/.git" ] || [ -f "$DOTFILES_DIR/.git" ]; then
@@ -25,7 +65,7 @@ fi
 export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"
 
 echo -e "${BLUE}Checking Neovim installation via bob...${NC}"
-if ! command -v bob >/dev/null 2>&1; then
+if ! check_tool bob; then
     echo -e "${YELLOW}Installing bob (Neovim version manager)...${NC}"
     curl -fsSL https://raw.githubusercontent.com/MordechaiHadad/bob/master/scripts/install.sh | bash
 fi
@@ -80,8 +120,24 @@ link_file "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
 # Lazygit
 link_file "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
 
-# WezTerm
+# WezTerm (Linux location)
 link_file "$DOTFILES_DIR/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
+
+# WezTerm (Windows WSL location if present)
+if [ -d "/mnt/c/Users" ]; then
+    for win_user_dir in /mnt/c/Users/*; do
+        win_user="$(basename "$win_user_dir")"
+        case "$win_user" in
+            Public|Default|Default\ User|desktop.ini|All\ Users) continue ;;
+            *)
+                if [ -d "$win_user_dir" ]; then
+                    echo -e "${BLUE}Syncing WezTerm config to Windows user ($win_user)...${NC}"
+                    cp "$DOTFILES_DIR/wezterm/wezterm.lua" "$win_user_dir/.wezterm.lua"
+                fi
+                ;;
+        esac
+    done
+fi
 
 echo ""
 echo -e "${GREEN}=== Setup complete! ===${NC}"

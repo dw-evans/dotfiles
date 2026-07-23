@@ -17,11 +17,6 @@ To automatically download WezTerm and link `wezterm.lua` on Windows:
 **Using Command Prompt / Double-Click:**
 Run `setup-wezterm-windows.bat`
 
-**Using PowerShell:**
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\setup-wezterm-windows.ps1
-```
-
 **Or from WSL / Git Bash:**
 ```bash
 ./scripts/setup-wezterm-windows.sh
@@ -33,11 +28,6 @@ WezTerm is configured to use `JetBrainsMono Nerd Font`. The font script download
 
 **On Windows (Double-Click):**
 Run `install-font.bat`
-
-**On Windows (PowerShell):**
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install-font.ps1
-```
 
 **On Linux / WSL:**
 ```bash

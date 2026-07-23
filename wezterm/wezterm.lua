@@ -10,7 +10,8 @@ return {
     enable_tab_bar = false,
 
     window_background_opacity = 1.0,
-    window_decorations = 'RESIZE',
+    -- Default Windows titlebar and resize decorations
+    window_decorations = 'TITLE | RESIZE',
     mouse_bindings = {
       -- Ctrl-click will open the link under the mouse cursor
       {

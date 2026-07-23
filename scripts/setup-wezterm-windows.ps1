@@ -22,7 +22,7 @@ Write-Host "=== WezTerm Windows Setup ===" -ForegroundColor Blue
 Write-Host ""
 
 # Determine dotfiles root directory from script location
-$DOTFILES_DIR = $PSScriptRoot
+$DOTFILES_DIR = Split-Path $PSScriptRoot -Parent
 $SOURCE_CONFIG = Join-Path $DOTFILES_DIR "wezterm\wezterm.lua"
 $TARGET_CONFIG = Join-Path $env:USERPROFILE ".wezterm.lua"
 

@@ -14,33 +14,36 @@ cd dotfiles
 
 To automatically download WezTerm and link `wezterm.lua` on Windows:
 
+**Using Command Prompt / Double-Click:**
+Run `setup-wezterm-windows.bat`
+
 **Using PowerShell:**
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-wezterm-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-wezterm-windows.ps1
 ```
-
-**Or using Command Prompt / Double-Click:**
-Run `setup-wezterm-windows.bat`
 
 **Or from WSL / Git Bash:**
 ```bash
-./setup-wezterm-windows.sh
+./scripts/setup-wezterm-windows.sh
 ```
 
 ## Downloading JetBrains Mono Nerd Font
 
 WezTerm is configured to use `JetBrainsMono Nerd Font`. The font script downloads `JetBrainsMono.zip` (v3.4.0) to your `Downloads` directory and extracts it, flashing the exact location for manual installation:
 
-**On Linux / WSL:**
-```bash
-./install-font.sh
-```
+**On Windows (Double-Click):**
+Run `install-font.bat`
 
 **On Windows (PowerShell):**
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install-font.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\install-font.ps1
 ```
-*(Or double-click `install-font.bat` on Windows)*
+
+**On Linux / WSL:**
+```bash
+./scripts/install-font.sh
+```
+
 
 
 

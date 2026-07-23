@@ -2,7 +2,8 @@
 
 set -e
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 SOURCE_CONFIG="$DOTFILES_DIR/wezterm/wezterm.lua"
 
 # Colors for output
@@ -17,11 +18,11 @@ echo -e "${BLUE}=== WezTerm Windows Setup ===${NC}"
 # Delegate to PowerShell script if powershell.exe is available (WSL, Git Bash, MSYS)
 if command -v powershell.exe >/dev/null 2>&1; then
     if command -v wslpath >/dev/null 2>&1; then
-        WIN_SCRIPT_PATH="$(wslpath -w "$DOTFILES_DIR/setup-wezterm-windows.ps1")"
+        WIN_SCRIPT_PATH="$(wslpath -w "$SCRIPT_DIR/setup-wezterm-windows.ps1")"
     elif command -v cygpath >/dev/null 2>&1; then
-        WIN_SCRIPT_PATH="$(cygpath -w "$DOTFILES_DIR/setup-wezterm-windows.ps1")"
+        WIN_SCRIPT_PATH="$(cygpath -w "$SCRIPT_DIR/setup-wezterm-windows.ps1")"
     else
-        WIN_SCRIPT_PATH="$DOTFILES_DIR/setup-wezterm-windows.ps1"
+        WIN_SCRIPT_PATH="$SCRIPT_DIR/setup-wezterm-windows.ps1"
     fi
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$WIN_SCRIPT_PATH"
     exit 0

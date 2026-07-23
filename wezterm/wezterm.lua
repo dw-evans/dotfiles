@@ -1,8 +1,8 @@
 local wezterm = require("wezterm")
 
 return {
-    default_prog = { "ubuntu" },
-    font = wezterm.font("JetBrainsMono Nerd Font"),
+    -- default_prog = { "ubuntu" },
+    font = wezterm.font("JetBrainsMono NFM"),
     font_size = 12.0,
 
     adjust_window_size_when_changing_font_size = false,

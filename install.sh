@@ -29,19 +29,33 @@ if [[ "$DOTFILES_DIR" == /mnt/c/* ]]; then
     exit 1
 fi
 
+# Determine privilege escalation (sudo vs root)
+SUDO=""
+if [ "$(id -u)" -ne 0 ]; then
+    if command -v sudo >/dev/null 2>&1; then
+        SUDO="sudo"
+    else
+        echo -e "${RED}[ERROR] Script is not running as root and 'sudo' is not installed.${NC}"
+        exit 1
+    fi
+fi
+
 # Auto-install system packages if CLI binaries are missing
 REQUIRED_PACKAGES=()
 
+command -v curl >/dev/null 2>&1 || REQUIRED_PACKAGES+=(curl)
+command -v git >/dev/null 2>&1 || REQUIRED_PACKAGES+=(git)
 command -v tmux >/dev/null 2>&1 || REQUIRED_PACKAGES+=(tmux)
 command -v unzip >/dev/null 2>&1 || REQUIRED_PACKAGES+=(unzip)
 command -v rg >/dev/null 2>&1 || REQUIRED_PACKAGES+=(ripgrep)
 command -v fdfind >/dev/null 2>&1 || command -v fd >/dev/null 2>&1 || REQUIRED_PACKAGES+=(fd-find)
 command -v gcc >/dev/null 2>&1 || command -v make >/dev/null 2>&1 || REQUIRED_PACKAGES+=(build-essential)
+dpkg -s ca-certificates >/dev/null 2>&1 || REQUIRED_PACKAGES+=(ca-certificates)
 
 if [ ${#REQUIRED_PACKAGES[@]} -ne 0 ]; then
     echo -e "${BLUE}Installing missing packages (${REQUIRED_PACKAGES[*]})...${NC}"
     if command -v apt-get >/dev/null 2>&1; then
-        sudo apt-get update && sudo apt-get install -y "${REQUIRED_PACKAGES[@]}"
+        $SUDO apt-get update && $SUDO apt-get install -y "${REQUIRED_PACKAGES[@]}"
     else
         echo -e "${RED}[ERROR] Could not auto-install ${REQUIRED_PACKAGES[*]}. Please install them manually.${NC}"
         exit 1
@@ -61,8 +75,8 @@ check_tool() {
 # Export PATH for current script execution
 export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH"
 
-# Ensure PATH exports are added to shell config files (~/.bashrc and ~/.zshrc)
-for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+# Ensure PATH exports are added to shell config files (~/.bashrc, ~/.profile, ~/.zshrc)
+for rc in "$HOME/.bashrc" "$HOME/.profile" "$HOME/.zshrc"; do
     if [ -f "$rc" ] || [ "$rc" = "$HOME/.bashrc" ]; then
         touch "$rc"
         if ! grep -qs 'bob/nvim-bin' "$rc"; then
@@ -148,7 +162,7 @@ if [ -d "/mnt/c/Users" ]; then
             *)
                 if [ -d "$win_user_dir" ]; then
                     echo -e "${BLUE}Syncing WezTerm config to Windows user ($win_user)...${NC}"
-                    cp "$DOTFILES_DIR/wezterm/wezterm.lua" "$win_user_dir/.wezterm.lua"
+                    cp "$DOTFILES_DIR/wezterm/wezterm.lua" "$win_user_dir/.wezterm.lua" 2>/dev/null || true
                 fi
                 ;;
         esac
@@ -170,4 +184,4 @@ if command -v tmux >/dev/null 2>&1 && [ -f "$HOME/.tmux/plugins/tpm/bin/install_
 fi
 
 echo ""
-echo -e "${GREEN}=== Setup complete! ===${NC}"
+echo -e "${GREEN}=== Setup complete! Run 'source ~/.bashrc' or restart your terminal. ===${NC}"
